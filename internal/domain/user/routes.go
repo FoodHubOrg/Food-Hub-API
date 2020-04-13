@@ -8,8 +8,8 @@ import (
 
 func SetUserRouters(router *mux.Router, db *gorm.DB) *mux.Router {
 	userRepo := NewUserRepository(db)
-	userService := NewUserService(userRepo)
-	userHandler := NewUserHandler(userService)
+	userService := NewService(userRepo)
+	userHandler := NewHandler(userService)
 	router.Handle("/signup",
 		negroni.New(
 			negroni.HandlerFunc(userHandler.CreateAccount),
