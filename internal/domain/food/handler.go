@@ -1,4 +1,4 @@
-package menu
+package food
 
 import (
 	"Food-Hub-API/internal/helpers"
@@ -27,25 +27,24 @@ func NewHandler(service Service) Handler {
 }
 
 func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	restaurantID := mux.Vars(r)["restaurantID"]
+	var food Food
+	menuID := mux.Vars(r)["menuID"]
 
-	parsedRestaurantID, err := uuid.FromString(restaurantID)
+	parsedMenuID, err := uuid.FromString(menuID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&menu); err != nil{
+	if err := json.NewDecoder(r.Body).Decode(&food); err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.UserID = userDetails.ID
-	menu.RestaurantID = parsedRestaurantID
+	//userDetails, _ := helpers.VerifyToken(r)
+	food.MenuID = parsedMenuID
 
-	result, err := s.service.Create(&menu)
+	result, err := s.service.Create(&food)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -56,25 +55,25 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 }
 
 func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
+	var food Food
+	foodID := mux.Vars(r)["foodID"]
 
-	parsedMenuID, err := uuid.FromString(menuID)
+	parsedFoodID, err := uuid.FromString(foodID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&menu); err != nil{
+	if err := json.NewDecoder(r.Body).Decode(&food); err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.UserID = userDetails.ID
-	menu.ID = parsedMenuID
+	//userDetails, _ := helpers.VerifyToken(r)
+	//food.UserID = userDetails.ID
+	food.ID = parsedFoodID
 
-	result, err := s.service.Update(&menu)
+	result, err := s.service.Update(&food)
 	if err != nil{
 		if err.Error() == "is not owner" {
 			helpers.ErrorResponse(w, http.StatusForbidden,
@@ -90,26 +89,26 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 }
 
 func (s *handler) Delete(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
+	var food Food
+	foodID := mux.Vars(r)["foodID"]
 
-	parsedMenuID, err := uuid.FromString(menuID)
+	parsedFoodID, err := uuid.FromString(foodID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.ID = parsedMenuID
-	menu.UserID = userDetails.ID
+	//userDetails, _ := helpers.VerifyToken(r)
+	food.ID = parsedFoodID
+	//food.UserID = userDetails.ID
 
-	if err = s.service.Delete(&menu); err != nil {
+	if err = s.service.Delete(&food); err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	helpers.JSONResponse(w, http.StatusOK, map[string]string{
-		"message": "menu deleted successfully",
+		"message": "food deleted successfully",
 	})
 	return
 }
@@ -126,16 +125,16 @@ func (s *handler) FindAll(w http.ResponseWriter, r *http.Request, n http.Handler
 }
 
 func (s *handler) FindById(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
-	parsedID, err := uuid.FromString(menuID)
+	var food Food
+	foodID := mux.Vars(r)["foodID"]
+	parsedID, err := uuid.FromString(foodID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	menu.ID = parsedID
-	result, err := s.service.FindById(&menu)
+	food.ID = parsedID
+	result, err := s.service.FindById(&food)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

@@ -2,23 +2,24 @@ package user
 
 import "Food-Hub-API/internal/helpers"
 
-type UserService interface {
+type Service interface {
 	CreateAccount(user *User) error
 	Login(user *User, password string) error
+	Update(user *User) error
 }
 
-type userService struct {
-	repo UserRepository
+type service struct {
+	repo Repository
 }
 
 // Implement UserHandler Interface
-func NewUserService(repository UserRepository) UserService {
-	return &userService{
+func NewService(repository Repository) Service {
+	return &service{
 		repository,
 	}
 }
 
-func (u *userService) CreateAccount(user *User) error {
+func (u *service) CreateAccount(user *User) error {
 	hash, err := helpers.GenerateHash([]byte(user.Password))
 	if err != nil{
 		return err
@@ -32,16 +33,24 @@ func (u *userService) CreateAccount(user *User) error {
 	return nil
 }
 
-func(u *userService) Login(user *User, password string) error{
-	err := u.repo.GetUser(user)
+func(u *service) Login(user *User, password string) error{
+	entity, err := u.repo.GetUser(user)
 	if err != nil{
 		return err
 	}
 
-	err = helpers.CompareHash(user.Password, password)
+	err = helpers.CompareHash(entity.Password, password)
 	if err != nil{
 		return err
 	}
 
+	return nil
+}
+
+func (u *service) Update(user *User) error {
+	err := u.repo.Update(user)
+	if err != nil{
+		return err
+	}
 	return nil
 }

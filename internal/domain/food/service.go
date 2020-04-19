@@ -1,4 +1,4 @@
-package menu
+package food
 
 import (
 	//"fmt"
@@ -6,12 +6,12 @@ import (
 )
 
 type Service interface {
-	Create(menu *Menu) (*Menu, error)
-	Update(menu *Menu) (*Menu, error)
-	Delete(menu *Menu) error
-	FindAll()([]*Menu, error)
-	FindById(menu *Menu)(*Menu, error)
-	//CheckUser(menu *Menu) error
+	Create(food *Food) (*Food, error)
+	Update(food *Food) (*Food, error)
+	Delete(food *Food) error
+	FindAll()([]*Food, error)
+	FindById(food *Food)(*Food, error)
+	//CheckUser(food *Food) error
 }
 
 type service struct {
@@ -24,47 +24,47 @@ func NewService(repository Repository) Service {
 	}
 }
 
-//func (s service) CheckUser(menu *Menu) error {
-//	rest, err := s.repo.FindById(menu.ID)
+//func (s service) CheckUser(food *Food) error {
+//	rest, err := s.repo.FindById(food.ID)
 //	if err != nil {
 //		return err
 //	}
 //
-//	if rest.UserID != menu.UserID {
+//	if rest.UserID != food.UserID {
 //		return fmt.Errorf("is not owner")
 //	}
 //
 //	return nil
 //}
 
-func (s service) Create(menu *Menu) (*Menu, error) {
-	result, err := s.repo.Create(menu)
+func (s service) Create(food *Food) (*Food, error) {
+	result, err := s.repo.Create(food)
 	if err != nil {
 		return result, err
 	}
 	return result, nil
 }
 
-func (s service) Update(menu *Menu) (*Menu, error) {
-	result, err := s.repo.Update(menu)
+func (s service) Update(food *Food) (*Food, error) {
+	result, err := s.repo.Update(food)
 	if err != nil{
 		return result, err
 	}
 	return result, nil
 }
 
-func (s service) Delete(menu *Menu) error {
-	//if err := s.CheckUser(menu); err != nil {
+func (s service) Delete(food *Food) error {
+	//if err := s.CheckUser(food); err != nil {
 	//	return err
 	//}
-	err := s.repo.Delete(menu)
+	err := s.repo.Delete(food)
 	if err != nil{
 		return err
 	}
 	return nil
 }
 
-func (s service) FindAll() ([]*Menu, error) {
+func (s service) FindAll() ([]*Food, error) {
 	result, err := s.repo.FindAll()
 	if err != nil{
 		return result, err
@@ -72,8 +72,8 @@ func (s service) FindAll() ([]*Menu, error) {
 	return result, nil
 }
 
-func (s service) FindById(menu *Menu) (*Menu, error) {
-	result, err := s.repo.FindById(menu)
+func (s service) FindById(food *Food) (*Food, error) {
+	result, err := s.repo.FindById(food)
 	if err != nil{
 		return result, err
 	}

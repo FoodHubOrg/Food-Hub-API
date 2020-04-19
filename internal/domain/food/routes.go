@@ -1,4 +1,4 @@
-package menu
+package food
 
 import (
 	"Food-Hub-API/internal/middlewares"
@@ -11,21 +11,21 @@ func Routes(router *mux.Router, db *gorm.DB) *mux.Router {
 	repo := NewRepository(db)
 	service := NewService(repo)
 	handler := NewHandler(service)
-	router.Handle("/menu/{restaurantID}",
+	router.Handle("/food/{menuID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),
 			negroni.HandlerFunc(handler.Create))).Methods("POST")
-	router.Handle("/menu/{menuID}",
+	router.Handle("/food/{foodID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),
 			negroni.HandlerFunc(handler.Update))).Methods("PUT")
-	router.Handle("/menu",
+	router.Handle("/food",
 		negroni.New(negroni.HandlerFunc(handler.FindAll))).Methods("GET")
-	router.Handle("/menu/{menuID}",
+	router.Handle("/food/{foodID}",
 		negroni.New(negroni.HandlerFunc(handler.FindById))).Methods("GET")
-	router.Handle("/menu/{menuID}",
+	router.Handle("/food/{foodID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),

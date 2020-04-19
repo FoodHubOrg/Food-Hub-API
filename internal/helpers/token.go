@@ -3,20 +3,55 @@ package helpers
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	uuid "github.com/satori/go.uuid"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/objx"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 )
 
+type Claims struct {
+	ID uuid.UUID `json:"id"`
+	Email string `json:"email"`
+	Name string `json:"name"`
+	IsRestaurantOwner bool `json:"is_RestaurantOwner"`
+	IsDelivery bool `json:"isDelivery"`
+	IsAdmin bool `json:"isAdmin"`
+	jwt.StandardClaims
+}
 
-func CreateToken(payload interface{}) (string, error) {
-	//Creating Access Token
-	atClaims := jwt.MapClaims{}
-	atClaims["authorized"] = true
-	atClaims["user"] = payload
-	atClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
-	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+type UserDetails struct {
+	ID uuid.UUID
+	Email string
+	Name string
+	IsRestaurantOwner bool
+	IsDelivery bool
+}
+
+
+func CreateToken(payload map[string]interface{}) (string, error) {
+	load := objx.New(payload)
+	userIdStr := fmt.Sprintf("%v", payload["id"])
+	parsedUserID, err := uuid.FromString(userIdStr)
+	if err != nil{
+		return "", err
+	}
+	expirationTime := time.Now().Add(60 * time.Hour)
+	claims := &Claims{
+		ID: parsedUserID,
+		Email: load.Get("email").Str(),
+		Name: load.Get("name").Str(),
+		IsRestaurantOwner: load.Get("isRestaurantOwner").Bool(),
+		IsDelivery: load.Get("isDeliver").Bool(),
+		IsAdmin: load.Get("isAdmin").Bool(),
+		StandardClaims: jwt.StandardClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := at.SignedString([]byte(os.Getenv("SECRET_KEY")))
 	if err != nil {
 		return "", err
@@ -24,30 +59,25 @@ func CreateToken(payload interface{}) (string, error) {
 	return token, nil
 }
 
-func VerifyToken(r *http.Request) (*jwt.Token, error) {
+func VerifyToken(r *http.Request) (*Claims, error) {
+	// Initialize a new instance of `Claims`
+	claims := &Claims{}
 	tokenString := ExtractToken(r)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		//Make sure that the token method conform to "SigningMethodHMAC"
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
+
+	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
-	if err != nil {
-		return nil, err
-	}
-	return token, nil
-}
 
-func TokenValid(r *http.Request) error {
-	token, err := VerifyToken(r)
 	if err != nil {
-		return err
+		return claims, err
 	}
-	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
-		return err
+
+	if !tkn.Valid {
+		return claims, err
 	}
-	return nil
+
+	logrus.Println("These are the claims", claims)
+	return claims, nil
 }
 
 func ExtractToken(r *http.Request) string {

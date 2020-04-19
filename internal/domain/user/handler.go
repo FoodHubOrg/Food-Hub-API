@@ -3,13 +3,16 @@ package user
 import (
 	"Food-Hub-API/internal/helpers"
 	"encoding/json"
+	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
 )
 
 // Methods to be consumed by handler
-type UserHandler interface {
-	CreateAccount(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
-	Login(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
+type Handler interface {
+	CreateAccount(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	Login(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	CreateRestaurantOwner(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 }
 
 type CreatedUser struct {
@@ -19,23 +22,17 @@ type CreatedUser struct {
 	Token string
 }
 
-// Implements userUseCaseMethods -> Interface
-// This will enable us send data to the UseCaseLayer
-// Implement service layer
-// Struct implements UserHandler
-type userHandler struct {
-	service UserService
+type handler struct {
+	service Service
 }
 
-// Implement UserHandler Interface
-// Returns a Handler interface
-func NewUserHandler(service UserService) UserHandler {
-	return &userHandler{
+func NewHandler(service Service) Handler {
+	return &handler{
 		service,
 	}
 }
 
-func (u *userHandler) CreateAccount(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (u *handler) CreateAccount(w http.ResponseWriter, r *http.Request, n http.HandlerFunc) {
 	var user User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -48,7 +45,15 @@ func (u *userHandler) CreateAccount(w http.ResponseWriter, r *http.Request, next
 		return
 	}
 
-	token, err := helpers.CreateToken(user)
+	m := map[string]interface{}{
+		"id": user.ID,
+		"email": user.Email,
+		"name": user.Name,
+		"isAdmin": user.IsAdmin,
+		"isRestaurant": user.IsRestaurantOwner,
+		"isDelivery": user.IsDelivery,
+	}
+	token, err := helpers.CreateToken(m)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -65,7 +70,7 @@ func (u *userHandler) CreateAccount(w http.ResponseWriter, r *http.Request, next
 	return
 }
 
-func (u *userHandler) Login(w http.ResponseWriter, r *http.Request, next http.HandlerFunc){
+func (u *handler) Login(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var user User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -78,8 +83,15 @@ func (u *userHandler) Login(w http.ResponseWriter, r *http.Request, next http.Ha
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	token, err := helpers.CreateToken(user)
+	m := map[string]interface{}{
+		"id": user.ID,
+		"email": user.Email,
+		"name": user.Name,
+		"isAdmin": user.IsAdmin,
+		"isRestaurantOwner": user.IsRestaurantOwner,
+		"isDelivery": user.IsDelivery,
+	}
+	token, err := helpers.CreateToken(m)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -96,3 +108,32 @@ func (u *userHandler) Login(w http.ResponseWriter, r *http.Request, next http.Ha
 	return
 }
 
+func (u *handler) CreateRestaurantOwner(w http.ResponseWriter, r *http.Request, n http.HandlerFunc) {
+	var user User
+
+	userIDStr := mux.Vars(r)["userID"]
+	parsedUserID, err := uuid.FromString(userIDStr)
+	if err != nil{
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user.ID = parsedUserID
+	err = u.service.Update(&user)
+	if err != nil {
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	m := map[string]interface{}{
+		"message": "successfully created restaurant owner",
+	}
+
+	helpers.JSONResponse(w, http.StatusCreated, m)
+	return
+}
