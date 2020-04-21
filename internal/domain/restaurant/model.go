@@ -4,6 +4,7 @@ import (
 	"Food-Hub-API/internal/database"
 	"Food-Hub-API/internal/domain/category"
 	"Food-Hub-API/internal/domain/menu"
+	"Food-Hub-API/internal/domain/order"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -14,5 +15,6 @@ type Restaurant struct {
 	UserID   uuid.UUID `gorm:"type:uuid;not_null"`
 	Menu     menu.Menu
 	Categories []category.Category `gorm:"many2many:category_restaurants;"`
+	Orders []order.Order
 }
 

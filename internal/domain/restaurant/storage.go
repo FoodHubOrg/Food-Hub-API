@@ -62,7 +62,7 @@ func (c Connection) Delete(restaurant *Restaurant) error {
 
 func (c Connection) FindAll() ([]*Restaurant, error) {
 	var restaurants []*Restaurant
-	err := c.db.Preload("Categories").Find(&restaurants).Error
+	err := c.db.Preload("Orders").Preload("Categories").Find(&restaurants).Error
 	if err != nil{
 		return nil, err
 	}

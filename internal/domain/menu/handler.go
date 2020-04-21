@@ -2,7 +2,6 @@ package menu
 
 import (
 	"Food-Hub-API/internal/helpers"
-	"encoding/json"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 	"net/http"
@@ -36,11 +35,6 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&menu); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
 	userDetails, _ := helpers.VerifyToken(r)
 	menu.UserID = userDetails.ID
 	menu.RestaurantID = parsedRestaurantID
@@ -65,10 +59,6 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&menu); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
 
 	userDetails, _ := helpers.VerifyToken(r)
 	menu.UserID = userDetails.ID

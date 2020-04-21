@@ -11,5 +11,5 @@ type Food struct {
 	Name string `gorm:"type:varchar(100);"`
 	Price string `gorm:"type:varchar(100);"`
 	MenuID uuid.UUID `gorm:"type:uuid;not_null"`
-	Orders order.Order
+	Orders []order.Order
 }
