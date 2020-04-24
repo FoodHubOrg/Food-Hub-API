@@ -1,13 +1,16 @@
 package category
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"Food-Hub-API/internal/domain/restaurant"
+	uuid "github.com/satori/go.uuid"
+)
 
 type Service interface {
-	Create(category *Category) (*Category, error)
-	Update(id uuid.UUID, category *Category) (*Category, error)
+	Create(category *restaurant.Category) (*restaurant.Category, error)
+	Update(id uuid.UUID, category *restaurant.Category) (*restaurant.Category, error)
 	Delete(id uuid.UUID) error
-	FindAll()([]*Category, error)
-	FindById(id uuid.UUID)(*Category, error)
+	FindAll()([]*restaurant.Category, error)
+	FindById(id uuid.UUID)(*restaurant.Category, error)
 }
 
 type service struct {
@@ -20,7 +23,7 @@ func NewService(repository Repository) Service {
 	}
 }
 
-func (s service) Create(category *Category) (*Category, error) {
+func (s service) Create(category *restaurant.Category) (*restaurant.Category, error) {
 	result, err := s.repo.Create(category)
 	if err != nil {
 		return result, err
@@ -28,7 +31,7 @@ func (s service) Create(category *Category) (*Category, error) {
 	return result, nil
 }
 
-func (s service) Update(id uuid.UUID, category *Category) (*Category, error) {
+func (s service) Update(id uuid.UUID, category *restaurant.Category) (*restaurant.Category, error) {
 	result, err := s.repo.Update(id, category)
 	if err != nil {
 		return result, err
@@ -44,7 +47,7 @@ func (s service) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (s service) FindAll() ([]*Category, error) {
+func (s service) FindAll() ([]*restaurant.Category, error) {
 	result, err := s.repo.FindAll()
 	if err != nil {
 		return result, err
@@ -52,7 +55,7 @@ func (s service) FindAll() ([]*Category, error) {
 	return result, nil
 }
 
-func (s service) FindById(id uuid.UUID) (*Category, error) {
+func (s service) FindById(id uuid.UUID) (*restaurant.Category, error) {
 	result, err := s.repo.FindById(id)
 	if err != nil {
 		return result, err

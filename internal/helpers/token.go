@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	uuid "github.com/satori/go.uuid"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/objx"
 	"net/http"
 	"os"
@@ -76,7 +75,6 @@ func VerifyToken(r *http.Request) (*Claims, error) {
 		return claims, err
 	}
 
-	logrus.Println("These are the claims", claims)
 	return claims, nil
 }
 

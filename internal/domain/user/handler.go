@@ -3,8 +3,7 @@ package user
 import (
 	"Food-Hub-API/internal/helpers"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	uuid "github.com/satori/go.uuid"
+	//"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -13,6 +12,7 @@ type Handler interface {
 	Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Login(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Orders(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	Restaurants(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	//RestaurantOwner(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 }
 
@@ -119,6 +119,36 @@ func (u *handler) Orders(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	user.Email = claims.Email
 
 	orders, err := u.service.FindBy(&user, "email")
+	if err != nil{
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	helpers.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"orders": orders.Orders,
+	})
+	return
+}
+
+func (u *handler) Restaurants(w http.ResponseWriter, r *http.Request, n http.HandlerFunc) {
+	var user User
+	claims, err := helpers.VerifyToken(r)
+	if err != nil{
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	user.Email = claims.Email
+
+	restaurants, err := u.service.FindBy(&user, "email")
+	if err != nil{
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	helpers.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"restaurants": restaurants.Restaurants,
+	})
+	return
 }
 
 //func (u *handler) RestaurantOwner(w http.ResponseWriter, r *http.Request, n http.HandlerFunc) {

@@ -42,7 +42,7 @@ func (c Connection) Delete(food *Food) error {
 
 func (c Connection) FindAll() ([]*Food, error) {
 	var foods []*Food
-	err := c.db.Preload("Foods").Find(&foods).Error
+	err := c.db.Find(&foods).Error
 	if err != nil{
 		return nil, err
 	}

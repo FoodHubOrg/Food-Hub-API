@@ -1,6 +1,7 @@
 package category
 
 import (
+	"Food-Hub-API/internal/domain/restaurant"
 	"Food-Hub-API/internal/helpers"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -27,7 +28,7 @@ func NewHandler(service Service) Handler {
 }
 
 func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var category Category
+	var category restaurant.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -45,7 +46,7 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 }
 
 func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var category Category
+	var category restaurant.Category
 	categoryID := mux.Vars(r)["categoryID"]
 
 	err := json.NewDecoder(r.Body).Decode(&category)

@@ -38,8 +38,6 @@ func (s service) CheckUser(restaurant *Restaurant) error {
 }
 
 func (s service) Create(restaurant *Restaurant) (*Restaurant, error) {
-	restaurant.Menu.UserID = restaurant.UserID
-	restaurant.Menu.RestaurantID  = restaurant.ID
 	result, err := s.repo.Create(restaurant)
 	if err != nil {
 		return result, err

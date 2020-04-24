@@ -18,7 +18,7 @@ func InitRoutes(db *gorm.DB) *mux.Router {
 		&restaurant.Restaurant{},
 		&menu.Menu{},
 		&food.Food{},
-		&category.Category{},
+		&restaurant.Category{},
 		&order.Order{},
 		)
 

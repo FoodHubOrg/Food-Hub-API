@@ -2,6 +2,7 @@ package order
 
 import (
 	"Food-Hub-API/internal/helpers"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -36,6 +37,11 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	ids, err := helpers.ParseIDs([]string{restaurantID, foodID})
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
+		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

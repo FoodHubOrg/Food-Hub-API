@@ -1,6 +1,7 @@
 package category
 
 import (
+	"Food-Hub-API/internal/domain/restaurant"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	_ "github.com/sirupsen/logrus"
@@ -11,11 +12,10 @@ type Connection struct {
 }
 
 func NewRepository(db *gorm.DB) Repository {
-	db.AutoMigrate(&Category{})
 	return &Connection{db,}
 }
 
-func (c *Connection) Create(category *Category) (*Category, error) {
+func (c *Connection) Create(category *restaurant.Category) (*restaurant.Category, error) {
 	err := c.db.Create(category).Error
 	if err != nil{
 		return category, err
@@ -23,7 +23,7 @@ func (c *Connection) Create(category *Category) (*Category, error) {
 	return category, nil
 }
 
-func (c *Connection) Update(id uuid.UUID, category *Category) (*Category, error) {
+func (c *Connection) Update(id uuid.UUID, category *restaurant.Category) (*restaurant.Category, error) {
 	err := c.db.Model(category).Where("id = ?", id).Update("name", category.Name).Error
 	if err != nil {
 		return category, err
@@ -32,26 +32,26 @@ func (c *Connection) Update(id uuid.UUID, category *Category) (*Category, error)
 }
 
 func (c *Connection) Delete(id uuid.UUID) error {
-	err := c.db.Where("id = ?", id).Delete(Category{}).Error
+	err := c.db.Where("id = ?", id).Delete(restaurant.Category{}).Error
 	if err != nil {
 		return err
 	}
 	return err
 }
 
-func (c *Connection) FindAll() ([]*Category, error) {
-	var categories []*Category
+func (c *Connection) FindAll() ([]*restaurant.Category, error) {
+	var categories []*restaurant.Category
 	//var rest restaurant.Restaurant
-	err := c.db.Find(&categories).Error
+	err := c.db.Preload("Restaurants").Find(&categories).Error
 	if err != nil{
 		return categories, err
 	}
 	return categories, nil
 }
 
-func (c *Connection) FindById(id uuid.UUID) (*Category, error) {
-	var category Category
-	err := c.db.Where("id = ?", id).First(&category).Error
+func (c *Connection) FindById(id uuid.UUID) (*restaurant.Category, error) {
+	var category restaurant.Category
+	err := c.db.Where("id = ?", id).Preload("Restaurants").First(&category).Error
 	if err != nil {
 		return &category, err
 	}
