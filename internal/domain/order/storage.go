@@ -61,7 +61,7 @@ func (c Connection) FindById(order *Order, mode string) (*Order, error) {
 			return order, err
 		}
 	default:
-		return nil, nil
+		return order, nil
 	}
 
 	return order, nil
