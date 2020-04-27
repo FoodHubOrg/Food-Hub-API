@@ -15,7 +15,7 @@ type Restaurant struct {
 	Time string `gorm:"size:100;not_null"`
 	Categories []Category `gorm:"many2many:restaurant_categories;"`
 	Orders []order.Order
-	Menu []menu.Menu
+	Menus []menu.Menu
 }
 
 type Category struct {

@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"Food-Hub-API/internal/domain/cart"
 	"Food-Hub-API/internal/domain/category"
 	"Food-Hub-API/internal/domain/food"
 	"Food-Hub-API/internal/domain/menu"
@@ -14,12 +15,13 @@ import (
 func InitRoutes(db *gorm.DB) *mux.Router {
 	// Migrations
 	db.AutoMigrate(
+		&order.Order{},
 		&user.User{},
 		&restaurant.Restaurant{},
 		&menu.Menu{},
 		&food.Food{},
 		&restaurant.Category{},
-		&order.Order{},
+		&cart.Cart{},
 		)
 
 	router := mux.NewRouter()

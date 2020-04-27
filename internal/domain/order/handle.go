@@ -2,7 +2,6 @@ package order
 
 import (
 	"Food-Hub-API/internal/helpers"
-	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -40,14 +39,9 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
-		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
 	userDetails, _ := helpers.VerifyToken(r)
 	order.UserID = userDetails.ID
-	order.FoodID = ids[1]
+	//order.FoodID = ids[1]
 	order.RestaurantID = ids[0]
 
 	result, err := s.service.Create(&order)

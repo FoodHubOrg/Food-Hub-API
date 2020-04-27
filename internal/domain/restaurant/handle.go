@@ -14,6 +14,7 @@ type Handler interface {
 	Delete(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	FindAll(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	FindById(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	RemoveCategory(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 }
 
 type handler struct {
@@ -67,6 +68,42 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	restaurant.ID = parsedRestaurantID
 
 	result, err := s.service.Update(&restaurant)
+	if err != nil{
+		if err.Error() == "is not owner" {
+			helpers.ErrorResponse(w, http.StatusForbidden,
+				"failed to perform action, please contact administration for help")
+			return
+		}
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	helpers.JSONResponse(w, http.StatusAccepted, result)
+	return
+}
+
+func (s *handler) RemoveCategory(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
+	var restaurant Restaurant
+	restaurantID := mux.Vars(r)["restaurantID"]
+	categoryID := mux.Vars(r)["categoryID"]
+
+	ids, err := helpers.ParseIDs([]string{restaurantID, categoryID})
+	if err != nil{
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&restaurant); err != nil{
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userDetails, _ := helpers.VerifyToken(r)
+	restaurant.UserID = userDetails.ID
+	restaurant.ID = ids[0]
+	restaurant.Categories[0].ID = ids[1]
+
+	result, err := s.service.RemoveCategory(&restaurant)
 	if err != nil{
 		if err.Error() == "is not owner" {
 			helpers.ErrorResponse(w, http.StatusForbidden,

@@ -8,4 +8,5 @@ type Repository interface {
 	Delete(restaurant *Restaurant) error
 	FindAll()([]*Restaurant, error)
 	FindById(id uuid.UUID)(Restaurant, error)
+	RemoveCategory(restaurant *Restaurant) (*Restaurant, error)
 }

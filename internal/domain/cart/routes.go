@@ -1,4 +1,4 @@
-package restaurant
+package cart
 
 import (
 	"Food-Hub-API/internal/middlewares"
@@ -11,29 +11,24 @@ func Routes(router *mux.Router, db *gorm.DB) *mux.Router {
 	repo := NewRepository(db)
 	service := NewService(repo)
 	handler := NewHandler(service)
-	router.Handle("/restaurant",
+	router.Handle("/cart/{menuID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),
 			negroni.HandlerFunc(handler.Create))).Methods("POST")
-	router.Handle("/restaurant/{restaurantID}",
+	router.Handle("/cart/{cartID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),
 			negroni.HandlerFunc(handler.Update))).Methods("PUT")
-	router.Handle("/restaurant",
+	router.Handle("/cart",
 		negroni.New(negroni.HandlerFunc(handler.FindAll))).Methods("GET")
-	router.Handle("/restaurant/{restaurantID}",
+	router.Handle("/cart/{cartID}",
 		negroni.New(negroni.HandlerFunc(handler.FindById))).Methods("GET")
-	router.Handle("/restaurant/{restaurantID}",
+	router.Handle("/cart/{cartID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
 			negroni.HandlerFunc(middlewares.RequireOwnerRights),
 			negroni.HandlerFunc(handler.Delete))).Methods("DELETE")
-	router.Handle("/restaurant/{restaurantID}/category/{categoryID}",
-		negroni.New(
-			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
-			negroni.HandlerFunc(middlewares.RequireOwnerRights),
-			negroni.HandlerFunc(handler.RemoveCategory))).Methods("PATCH")
 	return router
 }

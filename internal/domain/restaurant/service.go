@@ -1,7 +1,6 @@
 package restaurant
 
 import (
-	"fmt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -11,30 +10,18 @@ type Service interface {
 	Delete(restaurant *Restaurant) error
 	FindAll()([]*Restaurant, error)
 	FindById(id uuid.UUID)(Restaurant, error)
-	//CheckUser(restaurant *Restaurant) error
+	RemoveCategory(restaurant *Restaurant) (*Restaurant, error)
 }
 
 type service struct {
 	repo Repository
 }
 
+
 func NewService(repository Repository) Service {
 	return &service{
 		repository,
 	}
-}
-
-func (s service) CheckUser(restaurant *Restaurant) error {
-	rest, err := s.repo.FindById(restaurant.ID)
-	if err != nil {
-		return err
-	}
-
-	if rest.UserID != restaurant.UserID {
-		return fmt.Errorf("is not owner")
-	}
-
-	return nil
 }
 
 func (s service) Create(restaurant *Restaurant) (*Restaurant, error) {
@@ -53,10 +40,15 @@ func (s service) Update(restaurant *Restaurant) (*Restaurant, error) {
 	return result, nil
 }
 
-func (s service) Delete(restaurant *Restaurant) error {
-	if err := s.CheckUser(restaurant); err != nil {
-		return err
+func (s service) RemoveCategory(restaurant *Restaurant) (*Restaurant, error) {
+	result, err := s.repo.RemoveCategory(restaurant)
+	if err != nil{
+		return result, err
 	}
+	return result, nil
+}
+
+func (s service) Delete(restaurant *Restaurant) error {
 	err := s.repo.Delete(restaurant)
 	if err != nil{
 		return err

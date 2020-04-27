@@ -2,8 +2,6 @@ package restaurant
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
-
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"
 )
@@ -44,52 +42,37 @@ func (c Connection) Create(restaurant *Restaurant) (*Restaurant, error) {
 	return restaurant, nil
 }
 
+
 func (c Connection) Update(restaurant *Restaurant) (*Restaurant, error) {
 	// Update Restaurant
-	//if err := c.db.Model(restaurant).Updates(restaurant).Error; err != nil {
-	//	return nil, err
-	//}
-
 	if err := c.db.Set("gorm:save_associations",
 		false).Model(restaurant).Updates(restaurant).Error; err != nil {
 		return nil, err
 	}
 
-	// check db and get categories
-	var rest Restaurant
-	err := c.db.Where("id = ?", restaurant.ID).Preload("Categories").First(&rest).Error
-	if err != nil{
+	// Insert into categories if not ready there
+	for i := range restaurant.Categories {
+		if c.db.Where("name = ?",
+			restaurant.Categories[i].Name).First(&restaurant.Categories[i]).RecordNotFound() {
+			if err := c.db.Create(&restaurant.Categories[i]).Error; err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if err := c.db.Model(restaurant).Association(
+		"Categories").Append(restaurant.Categories).Error; err != nil {
 		return nil, err
 	}
 
-	// check for missing tag
-	for i, v := range rest.Categories {
-		logrus.Println(i, v)
-		//for j := range restaurant.Categories {
-		//	logrus.Println(i)
-		//	logrus.Println(j)
-		//}
+	return restaurant, nil
+}
+
+func  (c Connection) RemoveCategory(restaurant *Restaurant) (*Restaurant, error){
+	if err := c.db.Model(restaurant).Association(
+		"Categories").Delete(restaurant.Categories[0]).Error; err != nil {
+		return nil, err
 	}
-
-
-	//
-	//logrus.Println(restaurant.Categories)
-	//
-	//// Insert into categories if not ready there
-	//for i := range restaurant.Categories {
-	//	if c.db.Where("name = ?",
-	//		restaurant.Categories[i].Name).First(&restaurant.Categories[i]).RecordNotFound() {
-	//		if err := c.db.Create(&restaurant.Categories[i]).Error; err != nil {
-	//			return nil, err
-	//		}
-	//	}
-	//}
-	//
-	//if err := c.db.Model(restaurant).Association(
-	//	"Categories").Append(restaurant.Categories).Error; err != nil {
-	//	return nil, err
-	//}
-
 	return restaurant, nil
 }
 
@@ -103,7 +86,8 @@ func (c Connection) Delete(restaurant *Restaurant) error {
 
 func (c Connection) FindAll() ([]*Restaurant, error) {
 	var restaurants []*Restaurant
-	err := c.db.Preload("Orders").Preload("Categories").Find(&restaurants).Error
+	err := c.db.Preload("Orders").Preload("Categories").Preload(
+		"Menus").Find(&restaurants).Error
 	if err != nil{
 		return nil, err
 	}

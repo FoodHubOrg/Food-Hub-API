@@ -1,4 +1,4 @@
-package menu
+package cart
 
 import (
 	"Food-Hub-API/internal/helpers"
@@ -27,50 +27,53 @@ func NewHandler(service Service) Handler {
 }
 
 func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	restaurantID := mux.Vars(r)["restaurantID"]
+	//var cart Cart
+	//menuID := mux.Vars(r)["menuID"]
+	//
+	//parsedMenuID, err := uuid.FromString(menuID)
+	//if err != nil{
+	//	helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+	//	return
+	//}
+	//
+	//if err := json.NewDecoder(r.Body).Decode(&cart); err != nil{
+	//	helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+	//	return
+	//}
+	//
+	////userDetails, _ := helpers.VerifyToken(r)
+	//cart.MenuID = parsedMenuID
+	//
+	//result, err := s.service.Create(&cart)
+	//if err != nil{
+	//	helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+	//	return
+	//}
 
-	ids, err := helpers.ParseIDs([]string{restaurantID})
-	if err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&menu); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.UserID = userDetails.ID
-	menu.RestaurantID = ids[0]
-
-	result, err := s.service.Create(&menu)
-	if err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	helpers.JSONResponse(w, http.StatusCreated, result)
+	helpers.JSONResponse(w, http.StatusCreated, error.Error)
 	return
 }
 
 func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
+	var cart Cart
+	cartID := mux.Vars(r)["cartID"]
 
-	parsedMenuID, err := uuid.FromString(menuID)
+	parsedCartID, err := uuid.FromString(cartID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	if err := json.NewDecoder(r.Body).Decode(&cart); err != nil{
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.UserID = userDetails.ID
-	menu.ID = parsedMenuID
+	//userDetails, _ := helpers.VerifyToken(r)
+	//cart.UserID = userDetails.ID
+	cart.ID = parsedCartID
 
-	result, err := s.service.Update(&menu)
+	result, err := s.service.Update(&cart)
 	if err != nil{
 		if err.Error() == "is not owner" {
 			helpers.ErrorResponse(w, http.StatusForbidden,
@@ -86,26 +89,26 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 }
 
 func (s *handler) Delete(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
+	var cart Cart
+	cartID := mux.Vars(r)["cartID"]
 
-	parsedMenuID, err := uuid.FromString(menuID)
+	parsedCartID, err := uuid.FromString(cartID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	userDetails, _ := helpers.VerifyToken(r)
-	menu.ID = parsedMenuID
-	menu.UserID = userDetails.ID
+	//userDetails, _ := helpers.VerifyToken(r)
+	cart.ID = parsedCartID
+	//cart.UserID = userDetails.ID
 
-	if err = s.service.Delete(&menu); err != nil {
+	if err = s.service.Delete(&cart); err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	helpers.JSONResponse(w, http.StatusOK, map[string]string{
-		"message": "menu deleted successfully",
+		"message": "cart deleted successfully",
 	})
 	return
 }
@@ -122,16 +125,16 @@ func (s *handler) FindAll(w http.ResponseWriter, r *http.Request, n http.Handler
 }
 
 func (s *handler) FindById(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
-	var menu Menu
-	menuID := mux.Vars(r)["menuID"]
-	parsedID, err := uuid.FromString(menuID)
+	var cart Cart
+	cartID := mux.Vars(r)["cartID"]
+	parsedID, err := uuid.FromString(cartID)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	menu.ID = parsedID
-	result, err := s.service.FindById(&menu)
+	cart.ID = parsedID
+	result, err := s.service.FindById(&cart)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
