@@ -18,6 +18,6 @@ func main() {
 	logrus.Info("Server is running")
 	err := http.ListenAndServe(":5500", n)
 	if err != nil{
-		logrus.Fatal(err)
+		logrus.Fatal(err.Error())
 	}
 }

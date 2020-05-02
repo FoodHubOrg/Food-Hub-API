@@ -2,13 +2,13 @@
 FROM golang:1.12.0-alpine3.9
 
 # create directory
-RUN mkdir /food-hub-api
+RUN mkdir /app
 
-# copy every in current to food-hub-api directory
-ADD . /food-hub-api
+# copy every in current to app directory
+ADD . /app
 
-# all execution should be food-hub-api directory
-WORKDIR /food-hub-api
+# all execution should be app directory
+WORKDIR /app
 
 # compile binary
 RUN go build -o main .
@@ -17,4 +17,4 @@ RUN go build -o main .
 EXPOSE 8080
 
 # start program
-CMD ["/food-hub-api/main"]
+CMD ["/app/main"]
