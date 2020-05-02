@@ -1,6 +1,7 @@
 package order
 
 import (
+	"Food-Hub-API/internal/domain/cart"
 	"github.com/jinzhu/gorm"
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"
@@ -16,10 +17,34 @@ func NewRepository(db *gorm.DB) Repository {
 }
 
 func (c Connection) Create(order *Order) (*Order, error) {
+	// declare
+	//var foods []*food.Food
+	var crt cart.Cart
+
 	// Insert order first
-	if err := c.db.Create(order).Error; err != nil {
+	if err := c.db.Set("gorm:save_associations", false).Create(order).Error; err != nil {
 		return nil, err
 	}
+
+	crt.ID = order.CartID
+
+	// fetch foods
+	err := c.db.Where("id = ?", crt.ID).Preload("Foods").First(&crt).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// create association with orders
+	if err := c.db.Model(order).Association("Foods").Append(crt.Foods).Error; err != nil {
+		return nil, err
+	}
+
+	//// clear cart
+	if err := c.db.Model(crt).Association("Foods").Clear().Error; err != nil {
+		return nil, err
+	}
+
+
 	return order, nil
 }
 
@@ -41,7 +66,7 @@ func (c Connection) Delete(order *Order) error {
 
 func (c Connection) FindAll() ([]*Order, error) {
 	var orders []*Order
-	err := c.db.Find(orders).Error
+	err := c.db.Preload("Foods").Find(&orders).Error
 	if err != nil {
 		return nil, err
 	}

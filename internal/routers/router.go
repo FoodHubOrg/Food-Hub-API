@@ -32,5 +32,6 @@ func InitRoutes(db *gorm.DB) *mux.Router {
 	newRouter = order.Routes(newRouter, db)
 	newRouter = food.Routes(newRouter, db)
 	newRouter = user.Routes(newRouter, db)
+	newRouter = cart.Routes(newRouter, db)
 	return newRouter
 }

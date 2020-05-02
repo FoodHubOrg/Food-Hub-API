@@ -10,8 +10,8 @@ type Service interface {
 	Update(cart *Cart) (*Cart, error)
 	Delete(cart *Cart) error
 	FindAll()([]*Cart, error)
-	FindById(cart *Cart)(*Cart, error)
-	//CheckUser(cart *Cart) error
+	FindByID(cart *Cart)(*Cart, error)
+	RemoveFood(cart *Cart) error
 }
 
 type service struct {
@@ -23,19 +23,6 @@ func NewService(repository Repository) Service {
 		repository,
 	}
 }
-
-//func (s service) CheckUser(cart *Cart) error {
-//	rest, err := s.repo.FindById(cart.ID)
-//	if err != nil {
-//		return err
-//	}
-//
-//	if rest.UserID != cart.UserID {
-//		return fmt.Errorf("is not owner")
-//	}
-//
-//	return nil
-//}
 
 func (s service) Create(cart *Cart) (*Cart, error) {
 	result, err := s.repo.Create(cart)
@@ -53,10 +40,16 @@ func (s service) Update(cart *Cart) (*Cart, error) {
 	return result, nil
 }
 
+func (s service) RemoveFood(cart *Cart) error {
+	err := s.repo.Remove(cart)
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+
 func (s service) Delete(cart *Cart) error {
-	//if err := s.CheckUser(cart); err != nil {
-	//	return err
-	//}
 	err := s.repo.Delete(cart)
 	if err != nil{
 		return err
@@ -72,8 +65,8 @@ func (s service) FindAll() ([]*Cart, error) {
 	return result, nil
 }
 
-func (s service) FindById(cart *Cart) (*Cart, error) {
-	result, err := s.repo.FindById(cart)
+func (s service) FindByID(cart *Cart) (*Cart, error) {
+	result, err := s.repo.FindByID(cart)
 	if err != nil{
 		return result, err
 	}

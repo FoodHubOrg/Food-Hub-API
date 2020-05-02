@@ -11,10 +11,10 @@ func Routes(router *mux.Router, db *gorm.DB) *mux.Router {
 	repo := NewRepository(db)
 	service := NewService(repo)
 	handler := NewHandler(service)
-	router.Handle("/order/food/{foodID}/restaurant/{restaurantID}",
+	router.Handle("/order/cart/{cartID}/restaurant/{restaurantID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),
-			negroni.HandlerFunc(handler.Create))).Methods("POST")
+			negroni.HandlerFunc(handler.Checkout))).Methods("POST")
 	router.Handle("/order/user/{userID}",
 		negroni.New(
 			negroni.HandlerFunc(middlewares.RequireTokenAuthentication),

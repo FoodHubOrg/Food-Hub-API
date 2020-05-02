@@ -7,7 +7,7 @@ import (
 )
 
 type Handler interface {
-	Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	Checkout(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Receive(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Accept(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Decline(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
@@ -27,13 +27,13 @@ func NewHandler(service Service) Handler {
 	}
 }
 
-func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
+func (s *handler) Checkout(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var order Order
 
 	restaurantID := mux.Vars(r)["restaurantID"]
-	foodID := mux.Vars(r)["foodID"]
+	cartID := mux.Vars(r)["cartID"]
 
-	ids, err := helpers.ParseIDs([]string{restaurantID, foodID})
+	ids, err := helpers.ParseIDs([]string{restaurantID, cartID})
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -41,7 +41,7 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 
 	userDetails, _ := helpers.VerifyToken(r)
 	order.UserID = userDetails.ID
-	//order.FoodID = ids[1]
+	order.CartID = ids[1]
 	order.RestaurantID = ids[0]
 
 	result, err := s.service.Create(&order)

@@ -8,7 +8,7 @@ import (
 
 type Menu struct {
 	database.Base
-	Name string `gorm:"type:VARCHAR(100);not_null;"`
+	Name string `gorm:"type:varchar(100);not_null;"`
 	RestaurantID uuid.UUID  `gorm:"type:uuid;not_null;"`
 	UserID uuid.UUID `gorm:"type:uuid;not_null;"`
 	Foods []food.Food

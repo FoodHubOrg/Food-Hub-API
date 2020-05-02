@@ -10,5 +10,5 @@ type Cart struct {
 	database.Base
 	UserID uuid.UUID `gorm:"type:uuid;not_null;"`
 	RestaurantID  uuid.UUID `gorm:"type:uuid;not_null;"`
-	Foods []food.Food `gorm:"many2many:food_orders;"`
+	Foods []food.Food `gorm:"many2many:cart_foods;"`
 }

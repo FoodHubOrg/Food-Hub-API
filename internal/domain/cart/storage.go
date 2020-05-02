@@ -1,6 +1,7 @@
 package cart
 
 import (
+	"Food-Hub-API/internal/domain/food"
 	"github.com/jinzhu/gorm"
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"
@@ -21,18 +22,21 @@ func (c Connection) Create(cart *Cart) (*Cart, error) {
 	if err := c.db.Set("gorm:save_associations", false).Create(cart).Error; err != nil{
 		return nil, err
 	}
-
-	if err := c.db.Model(cart).Association(
-		"Foods").Append(cart.Foods).Error; err != nil {
-		return nil, err
-	}
 	return cart, nil
 }
 
 func (c Connection) Update(cart *Cart) (*Cart, error) {
 	// Update Cart
+	var item food.Food
+
+	// Insert into categories if not ready there
+	err := c.db.Where("id = ?", cart.Foods[0].ID).First(&item).Error
+	if err != nil {
+		return nil, err
+	}
+
 	if err := c.db.Model(cart).Association(
-		"Foods").Append(cart.Foods[0]).Error; err != nil {
+		"Foods").Append(item).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,8 +44,17 @@ func (c Connection) Update(cart *Cart) (*Cart, error) {
 }
 
 func (c Connection) Remove(cart *Cart) error {
+	// Update Cart
+	var item food.Food
+
+	// Insert into categories if not ready there
+	err := c.db.Where("id = ?", cart.Foods[0].ID).First(&item).Error
+	if err != nil {
+		return err
+	}
+
 	if err := c.db.Model(cart).Association(
-		"Foods").Delete(cart.Foods[0]).Error; err != nil {
+		"Foods").Delete(item).Error; err != nil {
 		return err
 	}
 
