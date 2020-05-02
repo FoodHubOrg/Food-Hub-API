@@ -1,9 +1,9 @@
 package cart
 
 import (
-	"Food-Hub-API/internal/database"
-	"Food-Hub-API/internal/domain/food"
-	"Food-Hub-API/internal/helpers"
+	"food-hub-api/internal/database"
+	"food-hub-api/internal/domain/food"
+	"food-hub-api/internal/helpers"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"

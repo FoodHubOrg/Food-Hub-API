@@ -1,7 +1,7 @@
 package order
 
 import (
-	"Food-Hub-API/internal/helpers"
+	"food-hub-api/internal/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
 )

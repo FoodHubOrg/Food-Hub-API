@@ -1,9 +1,9 @@
 package user
 
 import (
-	"Food-Hub-API/internal/database"
-	"Food-Hub-API/internal/domain/order"
-	"Food-Hub-API/internal/domain/restaurant"
+	"food-hub-api/internal/database"
+	"food-hub-api/internal/domain/order"
+	"food-hub-api/internal/domain/restaurant"
 )
 
 type User struct {

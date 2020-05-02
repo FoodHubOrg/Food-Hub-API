@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Food-Hub-API/internal/database"
-	"Food-Hub-API/internal/routers"
+	"food-hub-api/internal/database"
+	"food-hub-api/internal/routers"
 	"github.com/codegangsta/negroni"
 	"github.com/sirupsen/logrus"
 	"net/http"

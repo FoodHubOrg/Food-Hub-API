@@ -1,9 +1,9 @@
 package restaurant
 
 import (
-	"Food-Hub-API/internal/database"
-	"Food-Hub-API/internal/domain/menu"
-	"Food-Hub-API/internal/domain/order"
+	"food-hub-api/internal/database"
+	"food-hub-api/internal/domain/menu"
+	"food-hub-api/internal/domain/order"
 	uuid "github.com/satori/go.uuid"
 )
 

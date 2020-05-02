@@ -1,13 +1,13 @@
 package routers
 
 import (
-	"Food-Hub-API/internal/domain/cart"
-	"Food-Hub-API/internal/domain/category"
-	"Food-Hub-API/internal/domain/food"
-	"Food-Hub-API/internal/domain/menu"
-	"Food-Hub-API/internal/domain/order"
-	"Food-Hub-API/internal/domain/restaurant"
-	"Food-Hub-API/internal/domain/user"
+	"food-hub-api/internal/domain/cart"
+	"food-hub-api/internal/domain/category"
+	"food-hub-api/internal/domain/food"
+	"food-hub-api/internal/domain/menu"
+	"food-hub-api/internal/domain/order"
+	"food-hub-api/internal/domain/restaurant"
+	"food-hub-api/internal/domain/user"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )

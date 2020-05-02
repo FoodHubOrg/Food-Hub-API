@@ -1,6 +1,6 @@
 package user
 
-import "Food-Hub-API/internal/helpers"
+import "food-hub-api/internal/helpers"
 
 type Service interface {
 	Create(user *User) (*User, error)

@@ -1,7 +1,7 @@
 package cart
 
 import (
-	"Food-Hub-API/internal/domain/food"
+	"food-hub-api/internal/domain/food"
 	"github.com/jinzhu/gorm"
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"

@@ -1,7 +1,7 @@
 package restaurant
 
 import (
-	"Food-Hub-API/internal/middlewares"
+	"food-hub-api/internal/middlewares"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/urfave/negroni"

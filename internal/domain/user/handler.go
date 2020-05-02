@@ -1,7 +1,7 @@
 package user
 
 import (
-	"Food-Hub-API/internal/helpers"
+	"food-hub-api/internal/helpers"
 	"encoding/json"
 	//"github.com/gorilla/mux"
 	"net/http"

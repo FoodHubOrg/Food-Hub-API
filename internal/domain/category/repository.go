@@ -1,7 +1,7 @@
 package category
 
 import (
-	"Food-Hub-API/internal/domain/restaurant"
+	"food-hub-api/internal/domain/restaurant"
 	uuid "github.com/satori/go.uuid"
 )
 

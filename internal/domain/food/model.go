@@ -1,7 +1,7 @@
 package food
 
 import (
-	"Food-Hub-API/internal/database"
+	"food-hub-api/internal/database"
 	uuid "github.com/satori/go.uuid"
 )
 

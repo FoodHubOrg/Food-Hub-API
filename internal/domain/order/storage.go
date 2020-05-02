@@ -1,7 +1,7 @@
 package order
 
 import (
-	"Food-Hub-API/internal/domain/cart"
+	"food-hub-api/internal/domain/cart"
 	"github.com/jinzhu/gorm"
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"
@@ -17,7 +17,6 @@ func NewRepository(db *gorm.DB) Repository {
 }
 
 func (c Connection) Create(order *Order) (*Order, error) {
-	// declare
 	//var foods []*food.Food
 	var crt cart.Cart
 
@@ -43,7 +42,6 @@ func (c Connection) Create(order *Order) (*Order, error) {
 	if err := c.db.Model(crt).Association("Foods").Clear().Error; err != nil {
 		return nil, err
 	}
-
 
 	return order, nil
 }
