@@ -1,8 +1,8 @@
 package category
 
 import (
-	"food-hub-api/internal/domain/restaurant"
-	"food-hub-api/internal/helpers"
+	"foodhub-api/internal/domain/restaurant"
+	"foodhub-api/internal/helpers"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"

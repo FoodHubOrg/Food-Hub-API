@@ -1,10 +1,9 @@
 package cart
 
 import (
-	"food-hub-api/internal/database"
-	"food-hub-api/internal/domain/food"
-	"food-hub-api/internal/helpers"
-	"encoding/json"
+	"foodhub-api/internal/database"
+	"foodhub-api/internal/domain/food"
+	"foodhub-api/internal/helpers"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 	"net/http"
@@ -15,7 +14,7 @@ type Handler interface {
 	Update(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	Delete(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	FindAll(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
-	FindById(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
+	FindByID(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 	RemoveFood(w http.ResponseWriter, r *http.Request, n http.HandlerFunc)
 }
 
@@ -39,10 +38,6 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&cart); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
 
 	userDetails, _ := helpers.VerifyToken(r)
 	cart.UserID = userDetails.ID
@@ -63,7 +58,6 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	cartID := mux.Vars(r)["cartID"]
 	foodID := mux.Vars(r)["foodID"]
 
-	//parsedCartID, err := uuid.FromString(cartID)
 	ids, err := helpers.ParseIDs([]string{cartID, foodID})
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -126,9 +120,7 @@ func (s *handler) Delete(w http.ResponseWriter, r *http.Request, n http.HandlerF
 		return
 	}
 
-	//userDetails, _ := helpers.VerifyToken(r)
 	cart.ID = parsedCartID
-	//cart.UserID = userDetails.ID
 
 	if err = s.service.Delete(&cart); err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -152,16 +144,17 @@ func (s *handler) FindAll(w http.ResponseWriter, r *http.Request, n http.Handler
 	return
 }
 
-func (s *handler) FindById(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
+func (s *handler) FindByID(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var cart Cart
-	cartID := mux.Vars(r)["cartID"]
-	parsedID, err := uuid.FromString(cartID)
+	restaurantID := mux.Vars(r)["restaurantID"]
+
+	ids, err := helpers.ParseIDs([]string{restaurantID})
 	if err != nil{
-		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	cart.ID = parsedID
+	cart.RestaurantID = ids[0]
 	result, err := s.service.FindByID(&cart)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())

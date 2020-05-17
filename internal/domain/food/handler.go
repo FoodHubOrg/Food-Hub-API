@@ -1,7 +1,7 @@
 package food
 
 import (
-	"food-hub-api/internal/helpers"
+	"foodhub-api/internal/helpers"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
@@ -28,13 +28,13 @@ func NewHandler(service Service) Handler {
 
 func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var food Food
-	menuID := mux.Vars(r)["menuID"]
+	//menuID := mux.Vars(r)["menuID"]
 
-	parsedMenuID, err := uuid.FromString(menuID)
-	if err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+	//parsedMenuID, err := uuid.FromString(menuID)
+	//if err != nil{
+	//	helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
+	//	return
+	//}
 
 	if err := json.NewDecoder(r.Body).Decode(&food); err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -42,7 +42,7 @@ func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	}
 
 	//userDetails, _ := helpers.VerifyToken(r)
-	food.MenuID = parsedMenuID
+	//food.MenuID = parsedMenuID
 
 	result, err := s.service.Create(&food)
 	if err != nil{
@@ -75,11 +75,6 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 
 	result, err := s.service.Update(&food)
 	if err != nil{
-		if err.Error() == "is not owner" {
-			helpers.ErrorResponse(w, http.StatusForbidden,
-				"failed to perform action, please contact administration for help")
-			return
-		}
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

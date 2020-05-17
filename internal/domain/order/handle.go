@@ -1,9 +1,11 @@
 package order
 
 import (
-	"food-hub-api/internal/helpers"
+	"foodhub-api/internal/helpers"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"net/http"
+	"reflect"
 )
 
 type Handler interface {
@@ -30,27 +32,34 @@ func NewHandler(service Service) Handler {
 func (s *handler) Checkout(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var order Order
 
-	restaurantID := mux.Vars(r)["restaurantID"]
 	cartID := mux.Vars(r)["cartID"]
 
-	ids, err := helpers.ParseIDs([]string{restaurantID, cartID})
+	ids, err := helpers.ParseIDs([]string{cartID})
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	result := context.Get(r, "order")
+	ord := reflect.ValueOf(result)
+
+	order.Street = ord.FieldByName("Street").String()
+	order.City = ord.FieldByName("City").String()
+	order.Country = ord.FieldByName("Country").String()
+	order.District = ord.FieldByName("District").String()
+	order.PaymentType = ord.FieldByName("PaymentType").String()
 
 	userDetails, _ := helpers.VerifyToken(r)
 	order.UserID = userDetails.ID
-	order.CartID = ids[1]
-	order.RestaurantID = ids[0]
+	order.CartID = ids[0]
 
-	result, err := s.service.Create(&order)
+	entity, err := s.service.Create(&order)
 	if err != nil{
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	helpers.JSONResponse(w, http.StatusCreated, result)
+	helpers.JSONResponse(w, http.StatusCreated, entity)
 	return
 }
 
@@ -128,11 +137,6 @@ func (s *handler) Decline(w http.ResponseWriter, r *http.Request, n http.Handler
 
 	result, err := s.service.Update(&order, "declined")
 	if err != nil{
-		if err.Error() == "is not owner" {
-			helpers.ErrorResponse(w, http.StatusForbidden,
-				"failed to perform action, please contact administration for help")
-			return
-		}
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

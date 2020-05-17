@@ -1,7 +1,7 @@
 package food
 
 import (
-	"food-hub-api/internal/middlewares"
+	"foodhub-api/internal/middlewares"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/urfave/negroni"

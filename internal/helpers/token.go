@@ -32,7 +32,7 @@ type UserDetails struct {
 
 func CreateToken(payload map[string]interface{}) (string, error) {
 	load := objx.New(payload)
-	userIdStr := fmt.Sprintf("%v", payload["id"])
+	userIdStr := fmt.Sprintf("%v", payload["ID"])
 	parsedUserID, err := uuid.FromString(userIdStr)
 	if err != nil{
 		return "", err
@@ -40,11 +40,11 @@ func CreateToken(payload map[string]interface{}) (string, error) {
 	expirationTime := time.Now().Add(60 * time.Hour)
 	claims := &Claims{
 		ID: parsedUserID,
-		Email: load.Get("email").Str(),
-		Name: load.Get("name").Str(),
-		IsRestaurantOwner: load.Get("isRestaurantOwner").Bool(),
-		IsDelivery: load.Get("isDeliver").Bool(),
-		IsAdmin: load.Get("isAdmin").Bool(),
+		Email: load.Get("Email").Str(),
+		Name: load.Get("Name").Str(),
+		IsRestaurantOwner: load.Get("IsRestaurantOwner").Bool(),
+		IsDelivery: load.Get("IsDeliver").Bool(),
+		IsAdmin: load.Get("IsAdmin").Bool(),
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),

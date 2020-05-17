@@ -1,11 +1,14 @@
 package restaurant
 
 import (
-	"food-hub-api/internal/helpers"
-	"encoding/json"
+	"foodhub-api/internal/database"
+	"foodhub-api/internal/helpers"
+	"foodhub-api/internal/middlewares/validations"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 	"net/http"
+	"reflect"
 )
 
 type Handler interface {
@@ -30,9 +33,15 @@ func NewHandler(service Service) Handler {
 func (s *handler) Create(w http.ResponseWriter, r *http.Request, n http.HandlerFunc){
 	var restaurant Restaurant
 
-	if err := json.NewDecoder(r.Body).Decode(&restaurant); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+	result := context.Get(r, "restaurant")
+	rest := reflect.ValueOf(result)
+	restaurant.Cover = rest.FieldByName("Cover").String()
+	restaurant.Name = rest.FieldByName("Name").String()
+	restaurant.Location = rest.FieldByName("Location").String()
+	categories := rest.FieldByName("Categories").Interface().([]validations.Category)
+
+	for _, v := range categories {
+		restaurant.Categories = append(restaurant.Categories, Category{Name:v.Name})
 	}
 
 	userDetails, _ := helpers.VerifyToken(r)
@@ -52,33 +61,35 @@ func (s *handler) Update(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	var restaurant Restaurant
 	restaurantID := mux.Vars(r)["restaurantID"]
 
-	parsedRestaurantID, err := uuid.FromString(restaurantID)
+	ids, err := helpers.ParseIDs([]string{restaurantID})
 	if err != nil{
-		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&restaurant); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+	result := context.Get(r, "restaurant")
+	rest := reflect.ValueOf(result)
+	restaurant.Cover = rest.FieldByName("Cover").String()
+	restaurant.Name = rest.FieldByName("Name").String()
+	restaurant.Time = rest.FieldByName("Time").String()
+	restaurant.Location = rest.FieldByName("Location").String()
+	categories := rest.FieldByName("Categories").Interface().([]validations.Category)
+
+	for _, v := range categories {
+		restaurant.Categories = append(restaurant.Categories, Category{Name:v.Name})
 	}
 
 	userDetails, _ := helpers.VerifyToken(r)
 	restaurant.UserID = userDetails.ID
-	restaurant.ID = parsedRestaurantID
+	restaurant.ID = ids[0]
 
-	result, err := s.service.Update(&restaurant)
+	entity, err := s.service.Update(&restaurant)
 	if err != nil{
-		if err.Error() == "is not owner" {
-			helpers.ErrorResponse(w, http.StatusForbidden,
-				"failed to perform action, please contact administration for help")
-			return
-		}
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	helpers.JSONResponse(w, http.StatusAccepted, result)
+	helpers.JSONResponse(w, http.StatusAccepted, entity)
 	return
 }
 
@@ -93,28 +104,26 @@ func (s *handler) RemoveCategory(w http.ResponseWriter, r *http.Request, n http.
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&restaurant); err != nil{
-		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
+	category := Category{
+		Base:        database.Base{
+			ID:ids[1],
+		},
 	}
 
 	userDetails, _ := helpers.VerifyToken(r)
 	restaurant.UserID = userDetails.ID
 	restaurant.ID = ids[0]
-	restaurant.Categories[0].ID = ids[1]
+	restaurant.Categories = []Category{category}
 
-	result, err := s.service.RemoveCategory(&restaurant)
+	_, err = s.service.RemoveCategory(&restaurant)
 	if err != nil{
-		if err.Error() == "is not owner" {
-			helpers.ErrorResponse(w, http.StatusForbidden,
-				"failed to perform action, please contact administration for help")
-			return
-		}
 		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	helpers.JSONResponse(w, http.StatusAccepted, result)
+	helpers.JSONResponse(w, http.StatusAccepted, map[string]string{
+		"Message": "successfully removed tag",
+	})
 	return
 }
 
@@ -122,14 +131,14 @@ func (s *handler) Delete(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	var restaurant Restaurant
 	restaurantID := mux.Vars(r)["restaurantID"]
 
-	parsedRestaurantID, err := uuid.FromString(restaurantID)
+	ids, err := helpers.ParseIDs([]string{restaurantID})
 	if err != nil{
-		helpers.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		helpers.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	userDetails, _ := helpers.VerifyToken(r)
-	restaurant.ID = parsedRestaurantID
+	restaurant.ID = ids[0]
 	restaurant.UserID = userDetails.ID
 
 	if err = s.service.Delete(&restaurant); err != nil {
@@ -138,7 +147,7 @@ func (s *handler) Delete(w http.ResponseWriter, r *http.Request, n http.HandlerF
 	}
 
 	helpers.JSONResponse(w, http.StatusOK, map[string]string{
-		"message": "restaurant deleted successfully",
+		"Message": "restaurant deleted successfully",
 	})
 	return
 }

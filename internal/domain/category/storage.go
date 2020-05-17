@@ -1,7 +1,7 @@
 package category
 
 import (
-	"food-hub-api/internal/domain/restaurant"
+	"foodhub-api/internal/domain/restaurant"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	_ "github.com/sirupsen/logrus"

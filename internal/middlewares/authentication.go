@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"food-hub-api/internal/helpers"
+	"foodhub-api/internal/helpers"
 	"net/http"
 )
 

@@ -73,6 +73,7 @@ func  (c Connection) RemoveCategory(restaurant *Restaurant) (*Restaurant, error)
 		"Categories").Delete(restaurant.Categories[0]).Error; err != nil {
 		return nil, err
 	}
+
 	return restaurant, nil
 }
 
@@ -86,8 +87,7 @@ func (c Connection) Delete(restaurant *Restaurant) error {
 
 func (c Connection) FindAll() ([]*Restaurant, error) {
 	var restaurants []*Restaurant
-	err := c.db.Preload("Orders").Preload("Categories").Preload(
-		"Menus").Find(&restaurants).Error
+	err := c.db.Set("gorm:auto_preload", true).Find(&restaurants).Error
 	if err != nil{
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c Connection) FindAll() ([]*Restaurant, error) {
 
 func (c Connection) FindById(id uuid.UUID) (Restaurant, error) {
 	var restaurant Restaurant
-	err := c.db.Where("id = ?", id).First(&restaurant).Error
+	err := c.db.Set("gorm:auto_preload", true).Where("id = ?", id).First(&restaurant).Error
 	if err != nil {
 		return restaurant, err
 	}

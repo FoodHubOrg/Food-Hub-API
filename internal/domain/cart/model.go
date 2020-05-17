@@ -1,8 +1,8 @@
 package cart
 
 import (
-	"food-hub-api/internal/database"
-	"food-hub-api/internal/domain/food"
+	"foodhub-api/internal/database"
+	"foodhub-api/internal/domain/food"
 	uuid "github.com/satori/go.uuid"
 )
 

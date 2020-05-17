@@ -22,24 +22,62 @@ func (c Connection) Create(menu *Menu) (*Menu, error) {
 		return nil, err
 	}
 
-	// Insert into menu if not ready there
+	// Insert into meny if not ready there
 	for i := range menu.Foods {
-		menu.Foods[i].MenuID = menu.ID
-		if err := c.db.Create(&menu.Foods[i]).Error; err != nil {
-			return nil, err
+		if c.db.Where("name = ?",
+			menu.Foods[i].Name).First(&menu.Foods[i]).RecordNotFound() {
+			if err := c.db.Create(&menu.Foods[i]).Error; err != nil {
+				return nil, err
+			}
 		}
+	}
+
+	// create association for categories
+	if err := c.db.Model(menu).Association(
+		"Foods").Append(menu.Foods).Error; err != nil {
+		return nil, err
 	}
 
 	return menu, nil
 }
 
 func (c Connection) Update(menu *Menu) (*Menu, error) {
-	// Update Menu
-	if err := c.db.Model(menu).Updates(&Menu{Foods:menu.Foods}).Error; err != nil {
+	// Update Restaurant
+	if err := c.db.Set("gorm:save_associations",
+		false).Model(menu).Updates(menu).Error; err != nil {
 		return nil, err
 	}
 
+	// Insert into categories if not ready there
+	for i := range menu.Foods {
+		if c.db.Where("name = ?",
+			menu.Foods[i].Name).First(&menu.Foods[i]).RecordNotFound() {
+			if err := c.db.Create(&menu.Foods[i]).Error; err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if err := c.db.Model(menu).Association(
+		"Foods").Append(menu.Foods).Error; err != nil {
+		return nil, err
+	}
+
+	err :=  c.db.Set("gorm:auto_preload", true).Find(menu).Error
+	if err != nil {
+		return menu, err
+	}
+
 	return menu, nil
+}
+
+func (c Connection) RemoveFood(menu *Menu) error {
+	if err := c.db.Model(menu).Association(
+		"Foods").Delete(menu.Foods[0]).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c Connection) Delete(menu *Menu) error {

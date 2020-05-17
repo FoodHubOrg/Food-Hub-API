@@ -1,12 +1,12 @@
 package user
 
-import "food-hub-api/internal/helpers"
+import "foodhub-api/internal/helpers"
 
 type Service interface {
-	Create(user *User) (*User, error)
+	Create(user *User, mode string) (*User, error)
 	FindBy(user *User, mode string) (*User, error)
 	Login(user *User, password string) error
-	Update(user *User) (*User, error)
+	Update(user *User, mode string) (*User, error)
 }
 
 type service struct {
@@ -21,7 +21,7 @@ func NewService(repository Repository) Service {
 	}
 }
 
-func (u *service) Create(user *User) (*User, error) {
+func (u *service) Create(user *User, mode string) (*User, error) {
 	hash, err := helpers.GenerateHash([]byte(user.Password))
 	if err != nil{
 		return nil, err
@@ -29,7 +29,7 @@ func (u *service) Create(user *User) (*User, error) {
 
 	user.Password = hash
 
-	result, err := u.repo.Create(user)
+	result, err := u.repo.Create(user, mode)
 	if err != nil{
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func(u *service) Login(user *User, password string) error {
 	return nil
 }
 
-func (u *service) Update(user *User) (*User, error) {
-	result, err := u.repo.Update(user)
+func (u *service) Update(user *User, mode string) (*User, error) {
+	result, err := u.repo.Update(user, mode)
 	if err != nil{
 		return nil, err
 	}

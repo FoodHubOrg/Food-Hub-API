@@ -19,5 +19,5 @@ func JSONResponse(res http.ResponseWriter, statusCode int, payload interface{}){
 }
 
 func ErrorResponse(res http.ResponseWriter, statusCode int, message string){
-	JSONResponse(res, statusCode, map[string]string{"error":  message} )
+	JSONResponse(res, statusCode, map[string]string{"Error":  message} )
 }

@@ -1,20 +1,24 @@
 # Image repository
-FROM golang:1.12.0-alpine3.9
+FROM golang:1.14.2-alpine3.11
 
-# create directory
-RUN mkdir /app
-
-# copy every in current to app directory
-ADD . /app
-
-# all execution should be app directory
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# compile binary
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
 RUN go build -o main .
 
-# port running on
-EXPOSE 8080
+# Expose port 8080 to the outside world
+EXPOSE 8000
 
-# start program
-CMD ["/app/main"]
+# Command to run the executable
+CMD ["./main"]
+

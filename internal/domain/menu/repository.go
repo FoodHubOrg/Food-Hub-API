@@ -6,4 +6,5 @@ type Repository interface {
 	Delete(menu *Menu) error
 	FindAll()([]*Menu, error)
 	FindById(menu *Menu)(*Menu, error)
+	RemoveFood(menu *Menu) error
 }

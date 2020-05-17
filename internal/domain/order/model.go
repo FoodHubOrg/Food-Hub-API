@@ -1,8 +1,8 @@
 package order
 
 import (
-	"food-hub-api/internal/database"
-	"food-hub-api/internal/domain/food"
+	"foodhub-api/internal/database"
+	"foodhub-api/internal/domain/food"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -15,7 +15,7 @@ type Order struct {
 	Country string `gorm:"type:varchar(100);not_null"`
 	PaymentType string `gorm:"type:varchar(100);not_null"`
 	Status string `gorm:"type:varchar(100);default:'pending'"`
-	CartID uuid.UUID `gorm:"type:uuid;not_null;unique"`
+	CartID uuid.UUID `gorm:"type:uuid;not_null;"`
 	UserID uuid.UUID `gorm:"type:uuid;not_null"`
 	RestaurantID uuid.UUID `gorm:"type:uuid;not_null"`
 	Foods []food.Food `gorm:"many2many:food_orders;"`

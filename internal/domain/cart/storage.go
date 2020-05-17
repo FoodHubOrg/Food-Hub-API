@@ -1,7 +1,7 @@
 package cart
 
 import (
-	"food-hub-api/internal/domain/food"
+	"foodhub-api/internal/domain/food"
 	"github.com/jinzhu/gorm"
 	//"github.com/sirupsen/logrus"
 	//"github.com/sirupsen/logrus"
@@ -19,9 +19,12 @@ func NewRepository(db *gorm.DB) Repository {
 
 func (c Connection) Create(cart *Cart) (*Cart, error) {
 	// Insert into menu if not ready there
-	if err := c.db.Set("gorm:save_associations", false).Create(cart).Error; err != nil{
+	if err := c.db.Set("gorm:save_associations",
+		false).Where(Cart{UserID:cart.UserID,
+			RestaurantID:cart.RestaurantID}).FirstOrCreate(cart).Error; err != nil{
 		return nil, err
 	}
+
 	return cart, nil
 }
 
@@ -29,7 +32,7 @@ func (c Connection) Update(cart *Cart) (*Cart, error) {
 	// Update Cart
 	var item food.Food
 
-	// Insert into categories if not ready there
+	// Insert into foods if not ready there
 	err := c.db.Where("id = ?", cart.Foods[0].ID).First(&item).Error
 	if err != nil {
 		return nil, err
@@ -37,6 +40,10 @@ func (c Connection) Update(cart *Cart) (*Cart, error) {
 
 	if err := c.db.Model(cart).Association(
 		"Foods").Append(item).Error; err != nil {
+		return nil, err
+	}
+
+	if err := c.db.Set("gorm:auto_preload", true).First(cart).Error; err != nil{
 		return nil, err
 	}
 
@@ -71,7 +78,7 @@ func (c Connection) Delete(cart *Cart) error {
 
 func (c Connection) FindAll() ([]*Cart, error) {
 	var carts []*Cart
-	err := c.db.Preload("Foods").Find(&carts).Error
+	err := c.db.Set("gorm:auto_preload", true).Find(&carts).Error
 	if err != nil{
 		return nil, err
 	}
@@ -79,7 +86,7 @@ func (c Connection) FindAll() ([]*Cart, error) {
 }
 
 func (c Connection) FindByID(cart *Cart) (*Cart, error) {
-	err := c.db.Preload("Foods").Where("restaurant_id = ?", cart.RestaurantID).First(&cart).Error
+	err := c.db.Set("gorm:auto_preload", true).Where("restaurant_id = ?", cart.RestaurantID).First(&cart).Error
 	if err != nil {
 		return cart, err
 	}
